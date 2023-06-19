@@ -5,12 +5,12 @@ using System.Threading.Tasks;
 
 namespace FunL_backend.Models
 {
-    public class TitleStreamingService
+    public class TitleStreamingPlatform
     {
         public int TitleId { get; set; }
         public Title Title { get; set; }
 
-        public int StreamingServiceId { get; set; }
-        public StreamingService StreamingService { get; set; }
+        public int StreamingPlatformId { get; set; }
+        public StreamingPlatform StreamingPlatform { get; set; }
     }
 }
