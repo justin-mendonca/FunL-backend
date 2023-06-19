@@ -18,13 +18,13 @@ namespace FunL_backend.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<Title>>> GetPlatformTitles()
+        public async Task<ActionResult<ServiceResponse<List<Title>>>> GetPlatformTitles()
         {
             return Ok(await _platformService.GetPlatformTitles());
         }
 
         [HttpPost]
-        public async Task<ActionResult<List<Title>>> SavePlatformTitles(List<Title> TitleList)
+        public async Task<ActionResult<ServiceResponse<List<Title>>>> SavePlatformTitles(List<Title> TitleList)
         {
             return Ok(await _platformService.SavePlatformTitles(TitleList));
         } 
