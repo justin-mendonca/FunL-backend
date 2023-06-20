@@ -8,6 +8,6 @@ namespace FunL_backend.Services.PlatformService
     public interface IPlatformService
     {
         Task<ServiceResponse<String>> GetPlatformTitles();
-        Task<ServiceResponse<List<Title>>> SavePlatformTitles(List<Title> TitleList);
+        Task<ServiceResponse<List<GetTitleDto>>> SavePlatformTitles(List<GetTitleDto> TitleList);
     }
 }
