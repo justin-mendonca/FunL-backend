@@ -13,5 +13,14 @@ namespace FunL_backend.Data
         }
 
         public DbSet<Title> Titles { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+        modelBuilder.Entity<Title>()
+            .OwnsOne(t => t.PosterURLs);
+
+        modelBuilder.Entity<Title>()
+            .OwnsOne(t => t.BackdropURLs);
+        }
     }
 }
