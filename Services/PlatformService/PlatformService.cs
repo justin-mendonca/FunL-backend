@@ -22,14 +22,48 @@ namespace FunL_backend.Services.PlatformService
             return serviceResponse;
         }
 
-        public async Task<ServiceResponse<List<GetTitleDto>>> SavePlatformTitles(List<GetTitleDto> TitleList)
+        public async Task<ServiceResponse<List<GetTitleDto>>> SavePlatformTitles(List<GetTitleDto> titleList)
         {
-            // perform logic to save passed in title list to database
-
-            // return complete list of titles for that service so far
-
             var serviceResponse = new ServiceResponse<List<GetTitleDto>>();
-            serviceResponse.Data = TitleList;
+
+            try
+            {
+                // Create a new list to hold the GetTitleDto objects
+                var getTitleDtoList = new List<GetTitleDto>();
+
+                // Iterate over each Title object in the titleList
+                foreach (var title in titleList)
+                {
+                    // Save the Title object to the database using your database context
+                    _dbContext.Titles.Add(title);
+                    await _dbContext.SaveChangesAsync();
+
+                    // Create a GetTitleDto object from the saved Title object
+                    var getTitleDto = new GetTitleDto
+                    {
+                        // Map the properties from the saved Title object to the GetTitleDto object
+                        // Adjust the mapping according to your class structure and properties
+                        Id = title.Id,
+                        Name = title.Name,
+                        // Include other properties as needed
+                    };
+
+                    // Add the GetTitleDto object to the list
+                    getTitleDtoList.Add(getTitleDto);
+                }
+
+                // Set the data property of the service response to the list of GetTitleDto objects
+                serviceResponse.Data = getTitleDtoList;
+                serviceResponse.Message = "Titles saved successfully";
+            }
+            catch (Exception ex)
+            {
+                // Handle any exceptions that occur during the saving process
+                serviceResponse.Success = false;
+                serviceResponse.Message = "Failed to save titles: " + ex.Message;
+                // You can log the exception for further analysis if needed
+            }
+
             return serviceResponse;
         }
     }
