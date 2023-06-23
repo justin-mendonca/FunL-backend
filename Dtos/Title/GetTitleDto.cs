@@ -7,56 +7,31 @@ namespace FunL_backend.Dtos.Title
 {
     public class GetTitleDto
     {
-        public int Id { get; set; } = default!;
-
-        public string AdvisedMinimumAudienceAge { get; set; } = default!;
-
-        public string BackdropPath { get; set; } = default!;
-
-        public BackdropURLs BackdropURLs { get; set; } = default!;
-
-        public string[] Cast { get; set; } = default!;
-
-        public string[] Countries { get; set; } = default!;
-
-        public string[] Directors { get; set; } = default!;
-
-        public Genre[] Genres { get; set; } = default!;
-
-        public string ImdbId { get; set; } = default!;
-
-        public decimal ImdbRating { get; set; } = default!;
-
-        public int ImdbVoteCount { get; set; } = default!;
-
-        public string OriginalLanguage { get; set; } = default!;
-
-        public string OriginalTitle { get; set; } = default!;
-
-        public string Overview { get; set; } = default!;
-
-        public string PosterPath { get; set; } = default!;
-
-        public PosterURLs PosterURLs { get; set; } = default!;
-
-        public int Runtime { get; set; } = default!;
-
-        public StreamingInfo StreamingInfo { get; set; } = default!;
-
-        public string Tagline { get; set; } = default!;
-
-        public string Name { get; set; } = default!;
-
-        public int TmdbId { get; set; } = default!;
-
-        public decimal TmdbRating { get; set; } = default!;
-
-        public string Type { get; set; } = default!;
-
-        public int Year { get; set; } = default!;
-
-        public string YoutubeTrailerVideoId { get; set; } = default!;
-
-        public string YoutubeTrailerVideoLink { get; set; } = default!;
+        public int Id { get; set; }
+        public int? AdvisedMinimumAudienceAge { get; set; }
+        public string? BackdropPath { get; set; }
+        public Dictionary<string, string>? BackdropURLs { get; set; }
+        public List<string>? Cast { get; set; }
+        public List<string>? Countries { get; set; }
+        public List<string>? Directors { get; set; }
+        public List<Genre>? Genres { get; set; }
+        public string? ImdbId { get; set; }
+        public double? ImdbRating { get; set; }
+        public int? ImdbVoteCount { get; set; }
+        public string? OriginalLanguage { get; set; }
+        public string? OriginalTitle { get; set; }
+        public string? Overview { get; set; }
+        public string? PosterPath { get; set; }
+        public Dictionary<string, string>? PosterURLs { get; set; }
+        public int? Runtime { get; set; }
+        public StreamingInfo? StreamingInfo { get; set; }
+        public string? Tagline { get; set; }
+        public string? Name { get; set; }
+        public int? TmdbId { get; set; }
+        public double? TmdbRating { get; set; }
+        public string? Type { get; set; }
+        public int? Year { get; set; }
+        public string? YoutubeTrailerVideoId { get; set; }
+        public string? YoutubeTrailerVideoLink { get; set; }
     }
 }
