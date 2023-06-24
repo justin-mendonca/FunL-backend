@@ -2,16 +2,22 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using FunL_backend.Data;
 
 namespace FunL_backend.Services.PlatformService
 {
     public class PlatformService : IPlatformService
     {
         private readonly IMapper _mapper;
+        private readonly DataContext _dbContext;
 
-        public PlatformService(IMapper mapper)
+        public PlatformService(
+            IMapper mapper,
+            DataContext dbContext
+            )
         {
             _mapper = mapper;
+            _dbContext = dbContext;
         }
 
         public async Task<ServiceResponse<String>> GetPlatformTitles()
@@ -22,7 +28,7 @@ namespace FunL_backend.Services.PlatformService
             return serviceResponse;
         }
 
-        public async Task<ServiceResponse<List<GetTitleDto>>> SavePlatformTitles(List<GetTitleDto> titleList)
+        public async Task<ServiceResponse<List<GetTitleDto>>> SavePlatformTitles(Title[] titleList)
         {
             var serviceResponse = new ServiceResponse<List<GetTitleDto>>();
 
