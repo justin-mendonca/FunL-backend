@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using FunL_backend.Models;
 
 namespace FunL_backend.Data
 {
@@ -13,6 +14,7 @@ namespace FunL_backend.Data
         }
 
         public DbSet<Title> Titles { get; set; }
+        public DbSet<Genre> Genre { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

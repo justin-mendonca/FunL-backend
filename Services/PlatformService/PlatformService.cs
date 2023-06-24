@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using FunL_backend.Data;
+using FunL_backend.Models;
 
 namespace FunL_backend.Services.PlatformService
 {
@@ -40,6 +41,35 @@ namespace FunL_backend.Services.PlatformService
                 // Iterate over each Title object in the titleList
                 foreach (var title in titleList)
                 {
+                    // call getters to ensure the Json properties are serialized
+                    string? BackdropURLsJson = title.BackdropURLsJson;
+                    string? DirectorsJson = title.DirectorsJson;
+                    string? CountriesJson = title.CountriesJson;
+                    string? CastJson = title.CastJson;
+                    string? PosterURLsJson = title.PosterURLsJson;
+                    string? StreamingInfoJson = title.StreamingInfoJson;
+                    string? GenresJson = title.GenresJson;
+
+                    // Check if genres already exist in the database
+                    var existingGenres = new List<Genre>();
+
+                    foreach (var genre in title.Genres)
+                    {
+                        var existingGenre = _dbContext.Genre.FirstOrDefault(g => g.Name == genre.Name);
+                        if (existingGenre != null)
+                        {
+                            existingGenres.Add(existingGenre);
+                        }
+                        else
+                        {
+                            // Genre doesn't exist, add it to the database
+                            _dbContext.Genre.Add(genre);
+                            existingGenres.Add(genre);
+                        }
+                    }
+
+                    title.Genres = existingGenres;
+
                     // Save the Title object to the database using your database context
                     _dbContext.Titles.Add(title);
                     await _dbContext.SaveChangesAsync();

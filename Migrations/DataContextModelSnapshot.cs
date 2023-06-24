@@ -25,13 +25,9 @@ namespace FunL_backend.Migrations
             modelBuilder.Entity("FunL_backend.Models.Genre", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
                     b.Property<string>("Name")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
@@ -93,14 +89,12 @@ namespace FunL_backend.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PosterURLsJson")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("Runtime")
                         .HasColumnType("int");
 
                     b.Property<string>("StreamingInfoJson")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("StreamingInfo");
 

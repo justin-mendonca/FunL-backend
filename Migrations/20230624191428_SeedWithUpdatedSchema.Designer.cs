@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FunL_backend.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20230622020058_UpdateSchemaWithComplexType")]
-    partial class UpdateSchemaWithComplexType
+    [Migration("20230624191428_SeedWithUpdatedSchema")]
+    partial class SeedWithUpdatedSchema
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -28,21 +28,12 @@ namespace FunL_backend.Migrations
             modelBuilder.Entity("FunL_backend.Models.Genre", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Name")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("TitleId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("TitleId");
 
                     b.ToTable("Genre");
                 });
@@ -55,82 +46,80 @@ namespace FunL_backend.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("AdvisedMinimumAudienceAge")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int?>("AdvisedMinimumAudienceAge")
+                        .HasColumnType("int");
 
                     b.Property<string>("BackdropPath")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("CastSerialized")
-                        .IsRequired()
+                    b.Property<string>("BackdropURLsJson")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("CountriesSerialized")
-                        .IsRequired()
+                    b.Property<string>("CastJson")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("DirectorsSerialized")
-                        .IsRequired()
+                    b.Property<string>("CountriesJson")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("DirectorsJson")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("GenresJson")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ImdbId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<decimal>("ImdbRating")
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<double?>("ImdbRating")
+                        .HasColumnType("float");
 
-                    b.Property<int>("ImdbVoteCount")
+                    b.Property<int?>("ImdbVoteCount")
                         .HasColumnType("int");
 
                     b.Property<string>("Name")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("OriginalLanguage")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("OriginalTitle")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Overview")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PosterPath")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("Runtime")
+                    b.Property<string>("PosterURLsJson")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("Runtime")
                         .HasColumnType("int");
+
+                    b.Property<string>("StreamingInfoJson")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("StreamingInfo");
 
                     b.Property<string>("Tagline")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("TmdbId")
+                    b.Property<int?>("TmdbId")
                         .HasColumnType("int");
 
-                    b.Property<decimal>("TmdbRating")
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<double?>("TmdbRating")
+                        .HasColumnType("float");
 
                     b.Property<string>("Type")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("Year")
+                    b.Property<int?>("Year")
                         .HasColumnType("int");
 
                     b.Property<string>("YoutubeTrailerVideoId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("YoutubeTrailerVideoLink")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
@@ -138,51 +127,34 @@ namespace FunL_backend.Migrations
                     b.ToTable("Titles");
                 });
 
-            modelBuilder.Entity("FunL_backend.Models.Genre", b =>
+            modelBuilder.Entity("GenreTitle", b =>
                 {
+                    b.Property<int>("GenresId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TitleId")
+                        .HasColumnType("int");
+
+                    b.HasKey("GenresId", "TitleId");
+
+                    b.HasIndex("TitleId");
+
+                    b.ToTable("GenreTitle");
+                });
+
+            modelBuilder.Entity("GenreTitle", b =>
+                {
+                    b.HasOne("FunL_backend.Models.Genre", null)
+                        .WithMany()
+                        .HasForeignKey("GenresId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("FunL_backend.Models.Title", null)
-                        .WithMany("Genres")
-                        .HasForeignKey("TitleId");
-                });
-
-            modelBuilder.Entity("FunL_backend.Models.Title", b =>
-                {
-                    b.OwnsOne("FunL_backend.Models.BackdropURLs", "BackdropURLs", b1 =>
-                        {
-                            b1.Property<int>("TitleId")
-                                .HasColumnType("int");
-
-                            b1.HasKey("TitleId");
-
-                            b1.ToTable("Titles");
-
-                            b1.WithOwner()
-                                .HasForeignKey("TitleId");
-                        });
-
-                    b.OwnsOne("FunL_backend.Models.PosterURLs", "PosterURLs", b1 =>
-                        {
-                            b1.Property<int>("TitleId")
-                                .HasColumnType("int");
-
-                            b1.HasKey("TitleId");
-
-                            b1.ToTable("Titles");
-
-                            b1.WithOwner()
-                                .HasForeignKey("TitleId");
-                        });
-
-                    b.Navigation("BackdropURLs")
+                        .WithMany()
+                        .HasForeignKey("TitleId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("PosterURLs")
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("FunL_backend.Models.Title", b =>
-                {
-                    b.Navigation("Genres");
                 });
 #pragma warning restore 612, 618
         }
