@@ -21,34 +21,31 @@ namespace FunL_backend.Services.PlatformService
             _dbContext = dbContext;
         }
 
-        public async Task<ServiceResponse<String>> GetPlatformTitles()
+        public async Task<ServiceResponse<List<Title>>> GetPlatformTitles()
         {
             // return list of titles here
-            var serviceResponse = new ServiceResponse<String>();
-            serviceResponse.Data = "your response here";
+            var serviceResponse = new ServiceResponse<List<Title>>();
+            serviceResponse.Data = await _dbContext.Titles.ToListAsync();
             return serviceResponse;
         }
 
-        public async Task<ServiceResponse<List<GetTitleDto>>> SavePlatformTitles(Title[] titleList)
+        public async Task<ServiceResponse<List<Title>>> SavePlatformTitles(AddTitleDto[] titleList)
         {
-            var serviceResponse = new ServiceResponse<List<GetTitleDto>>();
+            var serviceResponse = new ServiceResponse<List<Title>>();
 
             try
             {
-                // Create a new list to hold the GetTitleDto objects
-                var getTitleDtoList = new List<GetTitleDto>();
+                // Create a new list to hold the mapped and saved Title objects
+                var titles = new List<Title>();
 
-                // Iterate over each Title object in the titleList
                 foreach (var title in titleList)
                 {
-                    // call getters to ensure the Json properties are serialized
-                    string? BackdropURLsJson = title.BackdropURLsJson;
-                    string? DirectorsJson = title.DirectorsJson;
-                    string? CountriesJson = title.CountriesJson;
-                    string? CastJson = title.CastJson;
-                    string? PosterURLsJson = title.PosterURLsJson;
-                    string? StreamingInfoJson = title.StreamingInfoJson;
-                    string? GenresJson = title.GenresJson;
+                    // Check if Title already exists in db - if it does skip to next title
+                    var duplicateTitle = _dbContext.Titles.FirstOrDefault(t => t.Name == title.Title);
+                    if (duplicateTitle != null)
+                    {
+                        continue;
+                    }
 
                     // Check if genres already exist in the database
                     var existingGenres = new List<Genre>();
@@ -68,33 +65,24 @@ namespace FunL_backend.Services.PlatformService
                         }
                     }
 
-                    title.Genres = existingGenres;
+                    var titleEntity = _mapper.Map<Title>(title);
 
-                    // Save the Title object to the database using your database context
-                    _dbContext.Titles.Add(title);
+                    titleEntity.Genres = existingGenres;
+
+                    // Save the Title object to the database
+                    _dbContext.Titles.Add(titleEntity);
                     await _dbContext.SaveChangesAsync();
 
-                    // Create a GetTitleDto object from the saved Title object
-                    var getTitleDto = new GetTitleDto
-                    {
-                        // Map the properties from the saved Title object to the GetTitleDto object
-                        // Adjust the mapping according to your class structure and properties
-                        Id = title.Id,
-                        Name = title.Name,
-                        // Include other properties as needed
-                    };
-
-                    // Add the GetTitleDto object to the list
-                    getTitleDtoList.Add(getTitleDto);
+                    // Add the Title object to the list that will be returned to frontend
+                    titles.Add(titleEntity);
                 }
-
-                // Set the data property of the service response to the list of GetTitleDto objects
-                serviceResponse.Data = getTitleDtoList;
+                serviceResponse.Data = titles;
                 serviceResponse.Message = "Titles saved successfully";
             }
             catch (Exception ex)
             {
                 // Handle any exceptions that occur during the saving process
+                Console.WriteLine("hello world");
                 serviceResponse.Success = false;
                 serviceResponse.Message = "Failed to save titles: " + ex.Message;
                 // You can log the exception for further analysis if needed

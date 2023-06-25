@@ -25,7 +25,7 @@ namespace FunL_backend.Dtos.Title
         public int? Runtime { get; set; }
         public StreamingInfo? StreamingInfo { get; set; }
         public string? Tagline { get; set; }
-        public string? Name { get; set; }
+        public string? Title { get; set; }
         public int? TmdbId { get; set; }
         public double? TmdbRating { get; set; }
         public string? Type { get; set; }

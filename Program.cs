@@ -26,6 +26,20 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddAutoMapper(typeof(Program).Assembly);
+var config = new MapperConfiguration(cfg =>
+{
+    cfg.CreateMap<AddTitleDto, Title>()
+        .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Title))
+        .ForMember(dest => dest.Cast, opt => opt.MapFrom(src => src.Cast))
+        .ForMember(dest => dest.Countries, opt => opt.MapFrom(src => src.Countries))
+        .ForMember(dest => dest.Directors, opt => opt.MapFrom(src => src.Directors))
+        .ForMember(dest => dest.PosterURLs, opt => opt.MapFrom(src => src.PosterURLs))
+        .ForMember(dest => dest.BackdropURLs, opt => opt.MapFrom(src => src.BackdropURLs))
+        .ForMember(dest => dest.StreamingInfo, opt => opt.MapFrom(src => src.StreamingInfo))
+        .ForMember(dest => dest.Genres, opt => opt.MapFrom(src => src.Genres));
+});
+builder.Services.AddSingleton(config.CreateMapper());
+
 builder.Services.AddScoped<IPlatformService, PlatformService>();
 
 var app = builder.Build();
