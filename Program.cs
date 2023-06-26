@@ -37,6 +37,8 @@ var config = new MapperConfiguration(cfg =>
         .ForMember(dest => dest.BackdropURLs, opt => opt.MapFrom(src => src.BackdropURLs))
         .ForMember(dest => dest.StreamingInfo, opt => opt.MapFrom(src => src.StreamingInfo))
         .ForMember(dest => dest.Genres, opt => opt.MapFrom(src => src.Genres));
+
+    cfg.CreateMap<StreamingServiceInfoDto, StreamingServiceInfo>();
 });
 builder.Services.AddSingleton(config.CreateMapper());
 

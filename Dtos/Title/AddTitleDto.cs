@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -23,7 +25,7 @@ namespace FunL_backend.Dtos.Title
         public string? PosterPath { get; set; }
         public Dictionary<string, string>? PosterURLs { get; set; }
         public int? Runtime { get; set; }
-        public StreamingInfo? StreamingInfo { get; set; }
+        public Dictionary<string, Dictionary<string, List<StreamingServiceInfoDto>>>? StreamingInfo { get; set; }
         public string? Tagline { get; set; }
         public string? Title { get; set; }
         public int? TmdbId { get; set; }
@@ -32,5 +34,19 @@ namespace FunL_backend.Dtos.Title
         public int? Year { get; set; }
         public string? YoutubeTrailerVideoId { get; set; }
         public string? YoutubeTrailerVideoLink { get; set; }
+    }
+
+    public class StreamingServiceInfoDto
+    {
+        public string? AddOn { get; set; }
+        public object? Audios { get; set; }
+        public int? AvailableSince { get; set; }
+        public int? Leaving { get; set; }
+        public string? Link { get; set; }
+        public object? Price { get; set; }
+        public string? Quality { get; set; }
+        public object? Subtitles { get; set; }
+        public string? Type { get; set; }
+        public string? WatchLink { get; set; }
     }
 }

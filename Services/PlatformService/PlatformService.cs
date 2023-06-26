@@ -67,6 +67,9 @@ namespace FunL_backend.Services.PlatformService
 
                     var titleEntity = _mapper.Map<Title>(title);
 
+                    var streamingInfo = _mapper.Map<Dictionary<string, Dictionary<string, List<StreamingServiceInfo>>>>(title.StreamingInfo);
+                    titleEntity.StreamingInfo = streamingInfo;
+
                     titleEntity.Genres = existingGenres;
 
                     // Save the Title object to the database
@@ -82,12 +85,9 @@ namespace FunL_backend.Services.PlatformService
             catch (Exception ex)
             {
                 // Handle any exceptions that occur during the saving process
-                Console.WriteLine("hello world");
                 serviceResponse.Success = false;
                 serviceResponse.Message = "Failed to save titles: " + ex.Message;
-                // You can log the exception for further analysis if needed
             }
-
             return serviceResponse;
         }
     }

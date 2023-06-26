@@ -1,50 +1,21 @@
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Threading.Tasks;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 
 namespace FunL_backend.Models
 {
-    public class StreamingInfo
-    {
-        public Dictionary<string, CountryStreamingInfo>? Countries { get; set; }
-    }
-
-    public class CountryStreamingInfo
-    {
-        public Dictionary<string, StreamingServiceInfo[]>? Services { get; set; }
-    }
-
     public class StreamingServiceInfo
     {
         public string? AddOn { get; set; }
-        public List<AudioInfo>? Audios { get; set; }
+        public object? Audios { get; set; }
         public int? AvailableSince { get; set; }
         public int? Leaving { get; set; }
         public string? Link { get; set; }
         public object? Price { get; set; }
         public string? Quality { get; set; }
-        public List<SubtitleInfo>? Subtitles { get; set; }
+        public object? Subtitles { get; set; }
         public string? Type { get; set; }
         public string? WatchLink { get; set; }
-    }
-
-    public class AudioInfo
-    {
-        public string? Language { get; set; }
-        public string? Region { get; set; }
-    }
-
-    public class SubtitleInfo
-    {
-        public bool? ClosedCaptions { get; set; }
-        public string? Locale { get; set; }
-        public string? Language { get; set; }
-        public string? Region { get; set; }
     }
 
     public class Genre
@@ -116,10 +87,10 @@ namespace FunL_backend.Models
         public string? StreamingInfoJson
         {
             get => StreamingInfo != null ? JsonSerializer.Serialize(StreamingInfo) : null;
-            set => StreamingInfo = !string.IsNullOrEmpty(value) ? JsonSerializer.Deserialize<StreamingInfo>(value) : null;
+            set => StreamingInfo = !string.IsNullOrEmpty(value) ? JsonSerializer.Deserialize<Dictionary<string, Dictionary<string, List<StreamingServiceInfo>>>>(value) : null;
         }
         [NotMapped]
-        public StreamingInfo? StreamingInfo { get; set; }
+        public Dictionary<string, Dictionary<string, List<StreamingServiceInfo>>>? StreamingInfo { get; set; }
         public string? Tagline { get; set; }
         public string? Name { get; set; }
         public int? TmdbId { get; set; }
