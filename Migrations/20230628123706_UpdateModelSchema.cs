@@ -5,7 +5,7 @@
 namespace FunL_backend.Migrations
 {
     /// <inheritdoc />
-    public partial class SeedWithUpdatedSchema : Migration
+    public partial class UpdateModelSchema : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -14,7 +14,8 @@ namespace FunL_backend.Migrations
                 name: "Genre",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false),
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
@@ -34,7 +35,6 @@ namespace FunL_backend.Migrations
                     CastJson = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CountriesJson = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     DirectorsJson = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    GenresJson = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ImdbId = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ImdbRating = table.Column<double>(type: "float", nullable: true),
                     ImdbVoteCount = table.Column<int>(type: "int", nullable: true),
@@ -60,23 +60,23 @@ namespace FunL_backend.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "GenreTitle",
+                name: "TitleGenre",
                 columns: table => new
                 {
-                    GenresId = table.Column<int>(type: "int", nullable: false),
-                    TitleId = table.Column<int>(type: "int", nullable: false)
+                    TitleId = table.Column<int>(type: "int", nullable: false),
+                    GenreId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_GenreTitle", x => new { x.GenresId, x.TitleId });
+                    table.PrimaryKey("PK_TitleGenre", x => new { x.TitleId, x.GenreId });
                     table.ForeignKey(
-                        name: "FK_GenreTitle_Genre_GenresId",
-                        column: x => x.GenresId,
+                        name: "FK_TitleGenre_Genre_GenreId",
+                        column: x => x.GenreId,
                         principalTable: "Genre",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_GenreTitle_Titles_TitleId",
+                        name: "FK_TitleGenre_Titles_TitleId",
                         column: x => x.TitleId,
                         principalTable: "Titles",
                         principalColumn: "Id",
@@ -84,16 +84,16 @@ namespace FunL_backend.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_GenreTitle_TitleId",
-                table: "GenreTitle",
-                column: "TitleId");
+                name: "IX_TitleGenre_GenreId",
+                table: "TitleGenre",
+                column: "GenreId");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "GenreTitle");
+                name: "TitleGenre");
 
             migrationBuilder.DropTable(
                 name: "Genre");

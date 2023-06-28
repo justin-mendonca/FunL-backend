@@ -25,7 +25,10 @@ namespace FunL_backend.Migrations
             modelBuilder.Entity("FunL_backend.Models.Genre", b =>
                 {
                     b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
@@ -59,9 +62,6 @@ namespace FunL_backend.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("DirectorsJson")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("GenresJson")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ImdbId")
@@ -124,34 +124,48 @@ namespace FunL_backend.Migrations
                     b.ToTable("Titles");
                 });
 
-            modelBuilder.Entity("GenreTitle", b =>
+            modelBuilder.Entity("FunL_backend.Models.TitleGenre", b =>
                 {
-                    b.Property<int>("GenresId")
+                    b.Property<int?>("TitleId")
                         .HasColumnType("int");
 
-                    b.Property<int>("TitleId")
+                    b.Property<int?>("GenreId")
                         .HasColumnType("int");
 
-                    b.HasKey("GenresId", "TitleId");
+                    b.HasKey("TitleId", "GenreId");
 
-                    b.HasIndex("TitleId");
+                    b.HasIndex("GenreId");
 
-                    b.ToTable("GenreTitle");
+                    b.ToTable("TitleGenre");
                 });
 
-            modelBuilder.Entity("GenreTitle", b =>
+            modelBuilder.Entity("FunL_backend.Models.TitleGenre", b =>
                 {
-                    b.HasOne("FunL_backend.Models.Genre", null)
-                        .WithMany()
-                        .HasForeignKey("GenresId")
+                    b.HasOne("FunL_backend.Models.Genre", "Genre")
+                        .WithMany("TitleGenres")
+                        .HasForeignKey("GenreId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("FunL_backend.Models.Title", null)
-                        .WithMany()
+                    b.HasOne("FunL_backend.Models.Title", "Title")
+                        .WithMany("TitleGenres")
                         .HasForeignKey("TitleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Genre");
+
+                    b.Navigation("Title");
+                });
+
+            modelBuilder.Entity("FunL_backend.Models.Genre", b =>
+                {
+                    b.Navigation("TitleGenres");
+                });
+
+            modelBuilder.Entity("FunL_backend.Models.Title", b =>
+                {
+                    b.Navigation("TitleGenres");
                 });
 #pragma warning restore 612, 618
         }

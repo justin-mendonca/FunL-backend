@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using FunL_backend.Data;
+using FunL_backend.Dtos.Title;
 using FunL_backend.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace FunL_backend.Services.PlatformService
 {
@@ -29,65 +31,60 @@ namespace FunL_backend.Services.PlatformService
             return serviceResponse;
         }
 
-        public async Task<ServiceResponse<List<Title>>> SavePlatformTitles(AddTitleDto[] titleList)
+        public async Task<ServiceResponse<List<Title>>> SavePlatformTitles(List<AddTitleDto> titleList)
         {
             var serviceResponse = new ServiceResponse<List<Title>>();
 
             try
             {
-                // Create a new list to hold the mapped and saved Title objects
                 var titles = new List<Title>();
 
-                foreach (var title in titleList)
+                foreach (var titleDto in titleList)
                 {
-                    // Check if Title already exists in db - if it does skip to next title
-                    var duplicateTitle = _dbContext.Titles.FirstOrDefault(t => t.Name == title.Title);
-                    if (duplicateTitle != null)
+                    var existingTitle = _dbContext.Titles.FirstOrDefault(t => t.Name == titleDto.Title);
+                    if (existingTitle != null)
                     {
                         continue;
                     }
 
-                    // Check if genres already exist in the database
-                    var existingGenres = new List<Genre>();
+                    var title = _mapper.Map<Title>(titleDto);
 
-                    foreach (var genre in title.Genres)
+                    if (titleDto.Genres != null)
                     {
-                        var existingGenre = _dbContext.Genre.FirstOrDefault(g => g.Name == genre.Name);
-                        if (existingGenre != null)
+                        title.TitleGenres = new List<TitleGenre>();
+                        foreach (var genreDto in titleDto.Genres)
                         {
-                            existingGenres.Add(existingGenre);
-                        }
-                        else
-                        {
-                            // Genre doesn't exist, add it to the database
-                            _dbContext.Genre.Add(genre);
-                            existingGenres.Add(genre);
+                            var genre = await _dbContext.Genre.FirstOrDefaultAsync(g => g.Name == genreDto.Name);
+
+                            // create a new genre if it doesn't exist
+                            if (genre == null)
+                            {
+                                genre = new Genre { Name = genreDto.Name };
+                                _dbContext.Genre.Add(genre);
+                            }
+
+                            title.TitleGenres.Add(new TitleGenre
+                            {
+                                Genre = genre
+                            });
                         }
                     }
 
-                    var titleEntity = _mapper.Map<Title>(title);
-
-                    var streamingInfo = _mapper.Map<Dictionary<string, Dictionary<string, List<StreamingServiceInfo>>>>(title.StreamingInfo);
-                    titleEntity.StreamingInfo = streamingInfo;
-
-                    titleEntity.Genres = existingGenres;
-
-                    // Save the Title object to the database
-                    _dbContext.Titles.Add(titleEntity);
+                    _dbContext.Titles.Add(title);
                     await _dbContext.SaveChangesAsync();
 
-                    // Add the Title object to the list that will be returned to frontend
-                    titles.Add(titleEntity);
+                    titles.Add(title);
                 }
+
                 serviceResponse.Data = titles;
                 serviceResponse.Message = "Titles saved successfully";
             }
             catch (Exception ex)
             {
-                // Handle any exceptions that occur during the saving process
                 serviceResponse.Success = false;
                 serviceResponse.Message = "Failed to save titles: " + ex.Message;
             }
+
             return serviceResponse;
         }
     }

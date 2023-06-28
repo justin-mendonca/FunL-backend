@@ -9,7 +9,7 @@ namespace FunL_backend.Models
         public string? AddOn { get; set; }
         public object? Audios { get; set; }
         public int? AvailableSince { get; set; }
-        public int? Leaving { get; set; }
+        public long? Leaving { get; set; }
         public string? Link { get; set; }
         public object? Price { get; set; }
         public string? Quality { get; set; }
@@ -21,9 +21,17 @@ namespace FunL_backend.Models
     public class Genre
     {
         [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int Id { get; set; }
-        public string? Name { get; set; }
+        public string? Name { get; set; } 
+        public List<TitleGenre>? TitleGenres { get; set; }
+    }
+
+    public class TitleGenre
+    {
+        public int? TitleId { get; set; }
+        public Title? Title { get; set; }
+        public int? GenreId { get; set; }
+        public Genre? Genre { get; set; }
     }
 
     public class Title
@@ -61,13 +69,7 @@ namespace FunL_backend.Models
         }
         [NotMapped]
         public List<string>? Directors { get; set; }
-        public string? GenresJson
-        {
-            get => Genres != null ? JsonSerializer.Serialize(Genres) : null;
-            set => Genres = !string.IsNullOrEmpty(value) ? JsonSerializer.Deserialize<List<Genre>>(value) : null;
-        }
-        [NotMapped]
-        public List<Genre>? Genres { get; set; }
+        public List<TitleGenre>? TitleGenres { get; set; }
         public string? ImdbId { get; set; }
         public double? ImdbRating { get; set; }
         public int? ImdbVoteCount { get; set; }

@@ -4,12 +4,16 @@ global using FunL_backend.Dtos.Title;
 global using AutoMapper;
 global using Microsoft.EntityFrameworkCore;
 global using FunL_backend.Data;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddDbContext<DataContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+{
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+    options.EnableSensitiveDataLogging();
+});
 
 builder.Services.AddCors(options =>
 {
@@ -21,7 +25,11 @@ builder.Services.AddCors(options =>
     });
 });
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+        .AddJsonOptions(options =>
+        {
+            options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve;
+        });
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -36,7 +44,11 @@ var config = new MapperConfiguration(cfg =>
         .ForMember(dest => dest.PosterURLs, opt => opt.MapFrom(src => src.PosterURLs))
         .ForMember(dest => dest.BackdropURLs, opt => opt.MapFrom(src => src.BackdropURLs))
         .ForMember(dest => dest.StreamingInfo, opt => opt.MapFrom(src => src.StreamingInfo))
-        .ForMember(dest => dest.Genres, opt => opt.MapFrom(src => src.Genres));
+        .ForMember(dest => dest.TitleGenres, opt => opt.MapFrom(src =>
+            src.Genres!.Select(g => new TitleGenre
+            {
+                Genre = new Genre { Name = g.Name }
+            }).ToList()));
 
     cfg.CreateMap<StreamingServiceInfoDto, StreamingServiceInfo>();
 });

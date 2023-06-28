@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using FunL_backend.Models;
+using Microsoft.Extensions.Logging;
+
 
 namespace FunL_backend.Data
 {
@@ -21,16 +23,12 @@ namespace FunL_backend.Data
             modelBuilder.Entity<Title>()
                 .HasKey(t => t.Id);
 
-            modelBuilder.Entity<Title>()
-                .HasMany(t => t.Genres)
-                .WithMany(); // Assuming many-to-many relationship between Title and Genre
-
-            // Configure other relationships and mappings
-
             modelBuilder.Entity<Genre>()
                 .HasKey(g => g.Id);
 
-            // Configure other properties of the Genre entity
+            modelBuilder.Entity<TitleGenre>()
+                .HasKey(tg => new { tg.TitleId, tg.GenreId });
+
 
             base.OnModelCreating(modelBuilder);
         }
