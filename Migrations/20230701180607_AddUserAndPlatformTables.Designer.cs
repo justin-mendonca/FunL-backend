@@ -4,6 +4,7 @@ using FunL_backend.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FunL_backend.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20230701180607_AddUserAndPlatformTables")]
+    partial class AddUserAndPlatformTables
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -47,7 +50,6 @@ namespace FunL_backend.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Name")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
@@ -248,36 +250,16 @@ namespace FunL_backend.Migrations
                     b.ToTable("UserStreamingPlatforms");
                 });
 
-            modelBuilder.Entity("FunL_backend.Models.UserTitle", b =>
-                {
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("TitleId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("StreamingServiceInfoId")
-                        .HasColumnType("int");
-
-                    b.HasKey("UserId", "TitleId");
-
-                    b.HasIndex("StreamingServiceInfoId");
-
-                    b.HasIndex("TitleId");
-
-                    b.ToTable("UserTitles");
-                });
-
             modelBuilder.Entity("FunL_backend.Models.StreamingServiceInfo", b =>
                 {
                     b.HasOne("FunL_backend.Models.StreamingPlatform", "StreamingPlatform")
-                        .WithMany("TitlesAvailable")
+                        .WithMany("Titles")
                         .HasForeignKey("StreamingPlatformId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("FunL_backend.Models.Title", "Title")
-                        .WithMany("StreamingServices")
+                        .WithMany("StreamingInfo")
                         .HasForeignKey("TitleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -325,29 +307,6 @@ namespace FunL_backend.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("FunL_backend.Models.UserTitle", b =>
-                {
-                    b.HasOne("FunL_backend.Models.StreamingServiceInfo", null)
-                        .WithMany("UserTitles")
-                        .HasForeignKey("StreamingServiceInfoId");
-
-                    b.HasOne("FunL_backend.Models.Title", "Title")
-                        .WithMany("UserTitles")
-                        .HasForeignKey("TitleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("FunL_backend.Models.User", "User")
-                        .WithMany("UserTitles")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Title");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("FunL_backend.Models.Genre", b =>
                 {
                     b.Navigation("TitleGenres");
@@ -355,30 +314,21 @@ namespace FunL_backend.Migrations
 
             modelBuilder.Entity("FunL_backend.Models.StreamingPlatform", b =>
                 {
-                    b.Navigation("TitlesAvailable");
+                    b.Navigation("Titles");
 
                     b.Navigation("UserStreamingPlatforms");
                 });
 
-            modelBuilder.Entity("FunL_backend.Models.StreamingServiceInfo", b =>
-                {
-                    b.Navigation("UserTitles");
-                });
-
             modelBuilder.Entity("FunL_backend.Models.Title", b =>
                 {
-                    b.Navigation("StreamingServices");
+                    b.Navigation("StreamingInfo");
 
                     b.Navigation("TitleGenres");
-
-                    b.Navigation("UserTitles");
                 });
 
             modelBuilder.Entity("FunL_backend.Models.User", b =>
                 {
                     b.Navigation("UserStreamingPlatforms");
-
-                    b.Navigation("UserTitles");
                 });
 #pragma warning restore 612, 618
         }

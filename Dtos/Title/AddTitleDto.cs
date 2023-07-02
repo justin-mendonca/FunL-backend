@@ -25,7 +25,7 @@ namespace FunL_backend.Dtos.Title
         public string? PosterPath { get; set; }
         public Dictionary<string, string>? PosterURLs { get; set; }
         public int? Runtime { get; set; }
-        public Dictionary<string, Dictionary<string, List<StreamingServiceInfoDto>>>? StreamingInfo { get; set; }
+        public List<StreamingServiceInfoDto>? StreamingInfo { get; set; }
         public string? Tagline { get; set; }
         public string? Title { get; set; }
         public int? TmdbId { get; set; }
@@ -38,6 +38,8 @@ namespace FunL_backend.Dtos.Title
 
     public class StreamingServiceInfoDto
     {
+        public string? Country { get; set; }
+        public string? Platform { get; set; }
         public string? AddOn { get; set; }
         public object? Audios { get; set; }
         public int? AvailableSince { get; set; }

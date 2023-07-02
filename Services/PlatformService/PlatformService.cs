@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Metrics;
 using System.Linq;
 using System.Threading.Tasks;
 using FunL_backend.Data;
@@ -23,11 +24,24 @@ namespace FunL_backend.Services.PlatformService
             _dbContext = dbContext;
         }
 
-        public async Task<ServiceResponse<List<Title>>> GetPlatformTitles()
+        public async Task<ServiceResponse<List<Title>>> GetPlatformTitles(string country, string service)
         {
-            // return list of titles here
             var serviceResponse = new ServiceResponse<List<Title>>();
-            serviceResponse.Data = await _dbContext.Titles.ToListAsync();
+
+            try
+            {
+                var titles = await _dbContext.Titles
+                    .FromSqlRaw($"SELECT * FROM [master].[dbo].[Titles] WHERE JSON_QUERY(StreamingInfo, '$.{country}.{service}') IS NOT NULL;")
+                    .ToListAsync();
+
+                serviceResponse.Data = titles;
+            }
+            catch (Exception ex)
+            {
+                serviceResponse.Success = false;
+                serviceResponse.Message = "Failed to fetch titles: " + ex.Message;
+            }
+
             return serviceResponse;
         }
 
@@ -44,37 +58,32 @@ namespace FunL_backend.Services.PlatformService
                     var existingTitle = _dbContext.Titles.FirstOrDefault(t => t.Name == titleDto.Title);
                     if (existingTitle != null)
                     {
-                        continue;
-                    }
-
-                    var title = _mapper.Map<Title>(titleDto);
-
-                    if (titleDto.Genres != null)
-                    {
-                        title.TitleGenres = new List<TitleGenre>();
-                        foreach (var genreDto in titleDto.Genres)
+                        // If title already exists, just update the StreamingServices list with the new platform service info
+                        foreach (var streamingServiceInfoDto in titleDto.StreamingInfo)
                         {
-                            var genre = await _dbContext.Genre.FirstOrDefaultAsync(g => g.Name == genreDto.Name);
-
-                            // create a new genre if it doesn't exist
-                            if (genre == null)
-                            {
-                                genre = new Genre { Name = genreDto.Name };
-                                _dbContext.Genre.Add(genre);
-                            }
-
-                            title.TitleGenres.Add(new TitleGenre
-                            {
-                                Genre = genre
-                            });
+                            var streamingServiceInfo = _mapper.Map<StreamingServiceInfo>(streamingServiceInfoDto);
+                            streamingServiceInfo.StreamingPlatformId = await GetOrCreatePlatformIdByNameAsync(streamingServiceInfoDto.Platform);
+                            existingTitle.StreamingServices.Add(streamingServiceInfo);
                         }
                     }
+                    else
+                    {
+                        var title = _mapper.Map<Title>(titleDto);
+                        title.StreamingServices = new List<StreamingServiceInfo>();
 
-                    _dbContext.Titles.Add(title);
-                    await _dbContext.SaveChangesAsync();
+                        foreach (var streamingServiceInfoDto in titleDto.StreamingInfo)
+                        {
+                            var serviceInfo = _mapper.Map<StreamingServiceInfo>(streamingServiceInfoDto);
+                            serviceInfo.StreamingPlatformId = await GetOrCreatePlatformIdByNameAsync(streamingServiceInfoDto.Platform);
+                            title.StreamingServices.Add(serviceInfo);
+                        }
 
-                    titles.Add(title);
+                        _dbContext.Titles.Add(title);
+                        titles.Add(title);
+                    }
                 }
+
+                await _dbContext.SaveChangesAsync();
 
                 serviceResponse.Data = titles;
                 serviceResponse.Message = "Titles saved successfully";
@@ -86,6 +95,24 @@ namespace FunL_backend.Services.PlatformService
             }
 
             return serviceResponse;
+        }
+
+        public async Task<int> GetOrCreatePlatformIdByNameAsync(string platformName)
+        {
+            var platform = await _dbContext.StreamingPlatforms
+                .FirstOrDefaultAsync(p => p.Name == platformName);
+
+            if (platform == null)
+            {
+                platform = new StreamingPlatform
+                {
+                    Name = platformName
+                };
+                _dbContext.StreamingPlatforms.Add(platform);
+                await _dbContext.SaveChangesAsync();
+            }
+
+            return platform.Id;
         }
     }
 }

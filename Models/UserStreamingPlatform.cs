@@ -9,7 +9,6 @@ namespace FunL_backend.Models
     {
         public int UserId { get; set; } = default!;
         public User User { get; set; } = default!;
-
         public int StreamingPlatformId { get; set; } = default!;
         public StreamingPlatform StreamingPlatform { get; set; } = default!;
     }
