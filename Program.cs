@@ -5,6 +5,8 @@ global using AutoMapper;
 global using Microsoft.EntityFrameworkCore;
 global using FunL_backend.Data;
 using System.Text.Json.Serialization;
+using System.Text.Json;
+using FunL_backend.Helpers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -44,19 +46,21 @@ var config = new MapperConfiguration(cfg =>
         .ForMember(dest => dest.Directors, opt => opt.MapFrom(src => src.Directors))
         .ForMember(dest => dest.PosterURLs, opt => opt.MapFrom(src => src.PosterURLs))
         .ForMember(dest => dest.BackdropURLs, opt => opt.MapFrom(src => src.BackdropURLs))
-        .ForMember(dest => dest.TitleGenres, opt => opt.MapFrom(src =>
-            src.Genres!.Select(g => new TitleGenre
-            {
-                Genre = new Genre { Name = g.Name }
-            }).ToList()))
         .ForMember(dest => dest.StreamingServices, opt => opt.MapFrom(src => src.StreamingInfo));
 
-    cfg.CreateMap<StreamingServiceInfoDto, StreamingServiceInfo>()
-        .ForMember(dest => dest.AudiosJson, opt => opt.MapFrom(src => src.Audios))
-        .ForMember(dest => dest.PriceJson, opt => opt.MapFrom(src => src.Price))
-        .ForMember(dest => dest.SubtitlesJson, opt => opt.MapFrom(src => src.Subtitles))
+    cfg.CreateMap<AddStreamingServiceInfoDto, StreamingServiceInfo>()
         .ForMember(dest => dest.Country, opt => opt.MapFrom(src => src.Country))
+        .ForMember(dest => dest.Audios, opt => opt.MapFrom(src => src.Audios))
+        .ForMember(dest => dest.Subtitles, opt => opt.MapFrom(src => src.Subtitles))
         .ForMember(dest => dest.StreamingPlatformId, opt => opt.Ignore());
+
+    cfg.CreateMap<Title, GetTitleDto>()
+    .ForMember(dest => dest.Genres, opt => opt.MapFrom(src => src.TitleGenres.Select(tg => tg.Genre.Name).ToList()))
+    .ForMember(dest => dest.StreamingServices, opt => opt.MapFrom(src => src.StreamingServices));
+
+    cfg.CreateMap<StreamingServiceInfo, GetStreamingServiceInfoDto>()
+        .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.PriceJson))
+        .ForMember(dest => dest.Platform, opt => opt.MapFrom(src => src.StreamingPlatform.Name));
 });
 builder.Services.AddSingleton(config.CreateMapper());
 

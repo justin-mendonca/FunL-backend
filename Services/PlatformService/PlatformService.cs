@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using FunL_backend.Data;
 using FunL_backend.Dtos.Title;
+using FunL_backend.Helpers;
 using FunL_backend.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -24,17 +25,29 @@ namespace FunL_backend.Services.PlatformService
             _dbContext = dbContext;
         }
 
-        public async Task<ServiceResponse<List<Title>>> GetPlatformTitles(string country, string service)
+        public async Task<ServiceResponse<List<GetTitleDto>>> GetTitlesBySubscribedPlatforms(string[] subscribedPlatforms)
         {
-            var serviceResponse = new ServiceResponse<List<Title>>();
+            var serviceResponse = new ServiceResponse<List<GetTitleDto>>();
 
             try
             {
+                // Fetch the ids of the streaming platforms that correspond to the list of names passed in
+                var platformIds = _dbContext.StreamingPlatforms
+                    .Where(sp => subscribedPlatforms.Contains(sp.Name))
+                    .Select(sp => sp.Id)
+                    .ToList();
+
                 var titles = await _dbContext.Titles
-                    .FromSqlRaw($"SELECT * FROM [master].[dbo].[Titles] WHERE JSON_QUERY(StreamingInfo, '$.{country}.{service}') IS NOT NULL;")
+                    .Include(t => t.StreamingServices)
+                        .ThenInclude(ss => ss.StreamingPlatform)
+                    .Include(t => t.TitleGenres)
+                        .ThenInclude(tg => tg.Genre)
+                    .Where(t => t.StreamingServices.Any(ss => platformIds.Contains(ss.StreamingPlatformId)))
                     .ToListAsync();
 
-                serviceResponse.Data = titles;
+                var getTitleDtos = _mapper.Map<List<GetTitleDto>>(titles);
+
+                serviceResponse.Data = getTitleDtos;
             }
             catch (Exception ex)
             {
@@ -52,29 +65,62 @@ namespace FunL_backend.Services.PlatformService
             try
             {
                 var titles = new List<Title>();
+                var existingGenres = _dbContext.Genres.ToDictionary(g => g.Name, g => g);
 
                 foreach (var titleDto in titleList)
                 {
-                    var existingTitle = _dbContext.Titles.FirstOrDefault(t => t.Name == titleDto.Title);
+                    var existingTitle = _dbContext.Titles
+                        .Include(t => t.StreamingServices)
+                        .FirstOrDefault(t => t.Name == titleDto.Title);
+
                     if (existingTitle != null)
                     {
-                        // If title already exists, just update the StreamingServices list with the new platform service info
                         foreach (var streamingServiceInfoDto in titleDto.StreamingInfo)
                         {
-                            var streamingServiceInfo = _mapper.Map<StreamingServiceInfo>(streamingServiceInfoDto);
-                            streamingServiceInfo.StreamingPlatformId = await GetOrCreatePlatformIdByNameAsync(streamingServiceInfoDto.Platform);
-                            existingTitle.StreamingServices.Add(streamingServiceInfo);
+                            var platformId = await GetOrCreatePlatformIdByNameAsync(streamingServiceInfoDto.Platform);
+                            var alreadyExists = existingTitle.StreamingServices.Any(ss => ss.StreamingPlatformId == platformId);
+
+                            if (!alreadyExists)
+                            {
+                                var serviceInfo = _mapper.Map<StreamingServiceInfo>(streamingServiceInfoDto);
+                                serviceInfo.StreamingPlatformId = platformId;
+                                serviceInfo.Audios = JsonHelper.Serialize(streamingServiceInfoDto.Audios);
+                                serviceInfo.Subtitles = JsonHelper.Serialize(streamingServiceInfoDto.Subtitles);
+
+                                existingTitle.StreamingServices.Add(serviceInfo);
+                            }
                         }
                     }
                     else
                     {
                         var title = _mapper.Map<Title>(titleDto);
                         title.StreamingServices = new List<StreamingServiceInfo>();
+                        title.TitleGenres = new List<TitleGenre>();
+
+                        foreach (var genreName in titleDto.Genres)
+                        {
+                            Genre genre;
+
+                            if (existingGenres.ContainsKey(genreName.Name))
+                            {
+                                genre = existingGenres[genreName.Name];
+                            }
+                            else
+                            {
+                                genre = new Genre { Name = genreName.Name };
+                                existingGenres[genreName.Name] = genre;
+                            }
+
+                            title.TitleGenres.Add(new TitleGenre { Title = title, Genre = genre });
+                        }
 
                         foreach (var streamingServiceInfoDto in titleDto.StreamingInfo)
                         {
                             var serviceInfo = _mapper.Map<StreamingServiceInfo>(streamingServiceInfoDto);
                             serviceInfo.StreamingPlatformId = await GetOrCreatePlatformIdByNameAsync(streamingServiceInfoDto.Platform);
+                            serviceInfo.Audios = JsonHelper.Serialize(streamingServiceInfoDto.Audios);
+                            serviceInfo.Subtitles = JsonHelper.Serialize(streamingServiceInfoDto.Subtitles);
+
                             title.StreamingServices.Add(serviceInfo);
                         }
 
@@ -96,6 +142,7 @@ namespace FunL_backend.Services.PlatformService
 
             return serviceResponse;
         }
+
 
         public async Task<int> GetOrCreatePlatformIdByNameAsync(string platformName)
         {

@@ -17,13 +17,12 @@ namespace FunL_backend.Controllers
             _platformService = platformService;
         }
 
-        [HttpGet]
-        public async Task<ActionResult<ServiceResponse<List<Title>>>> GetPlatformTitles([FromQuery] string country, [FromQuery] string service)
+        [HttpPost("GetTitles")]
+        public async Task<ActionResult<ServiceResponse<List<GetTitleDto>>>> GetTitlesBySubscribedPlatforms([FromBody] string[] subscribedPlatforms)
         {
-            return Ok(await _platformService.GetPlatformTitles(country, service));
+            return Ok(await _platformService.GetTitlesBySubscribedPlatforms(subscribedPlatforms));
         }
 
-        // make sure to change GetTitleDto that is taken in as an argument to AddTitleDto and change throughout the route
         [HttpPost]
         public async Task<ActionResult<ServiceResponse<List<Title>>>> SavePlatformTitles(List<AddTitleDto> titleList)
         {

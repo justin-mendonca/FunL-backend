@@ -18,13 +18,8 @@ namespace FunL_backend.Models
 
         // Properties from your current StreamingServiceInfo class:
         public string? AddOn { get; set; }
-        public string? AudiosJson
-        {
-            get => Audios != null ? JsonSerializer.Serialize(Audios) : null;
-            set => Audios = !string.IsNullOrEmpty(value) ? JsonSerializer.Deserialize<List<string>>(value) : null;
-        }
-        [NotMapped]
-        public object? Audios { get; set; }
+
+        public string? Audios { get; set; }
         public int? AvailableSince { get; set; }
         public long? Leaving { get; set; }
         public string? Link { get; set; }
@@ -36,13 +31,7 @@ namespace FunL_backend.Models
         [NotMapped]
         public object? Price { get; set; }
         public string? Quality { get; set; }
-        public string? SubtitlesJson
-        {
-            get => Subtitles != null ? JsonSerializer.Serialize(Subtitles) : null;
-            set => Subtitles = !string.IsNullOrEmpty(value) ? JsonSerializer.Deserialize<List<string>>(value) : null;
-        }
-        [NotMapped]
-        public object? Subtitles { get; set; }
+        public string? Subtitles { get; set; }
         public string? Type { get; set; }
         public string? WatchLink { get; set; }
 
@@ -127,7 +116,7 @@ namespace FunL_backend.Models
         [NotMapped]
         public Dictionary<string, string>? PosterURLs { get; set; }
         public int? Runtime { get; set; }
-        public List<StreamingServiceInfo>? StreamingServices { get; set; }
+        public List<StreamingServiceInfo> StreamingServices { get; set; }
         public string? Tagline { get; set; }
         public string? Name { get; set; }
         public int? TmdbId { get; set; }

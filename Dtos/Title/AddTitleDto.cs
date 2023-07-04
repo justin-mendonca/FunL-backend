@@ -15,7 +15,7 @@ namespace FunL_backend.Dtos.Title
         public List<string>? Cast { get; set; }
         public List<string>? Countries { get; set; }
         public List<string>? Directors { get; set; }
-        public List<GenreDto>? Genres { get; set; }
+        public List<AddGenreDto>? Genres { get; set; }
         public string? ImdbId { get; set; }
         public double? ImdbRating { get; set; }
         public int? ImdbVoteCount { get; set; }
@@ -25,7 +25,7 @@ namespace FunL_backend.Dtos.Title
         public string? PosterPath { get; set; }
         public Dictionary<string, string>? PosterURLs { get; set; }
         public int? Runtime { get; set; }
-        public List<StreamingServiceInfoDto>? StreamingInfo { get; set; }
+        public List<AddStreamingServiceInfoDto>? StreamingInfo { get; set; }
         public string? Tagline { get; set; }
         public string? Title { get; set; }
         public int? TmdbId { get; set; }
@@ -36,25 +36,43 @@ namespace FunL_backend.Dtos.Title
         public string? YoutubeTrailerVideoLink { get; set; }
     }
 
-    public class StreamingServiceInfoDto
+    public class AddStreamingServiceInfoDto
     {
         public string? Country { get; set; }
         public string? Platform { get; set; }
         public string? AddOn { get; set; }
-        public object? Audios { get; set; }
+        public List<AddAudioDto>? Audios { get; set; }
         public int? AvailableSince { get; set; }
         public long? Leaving { get; set; }
         public string? Link { get; set; }
         public object? Price { get; set; }
         public string? Quality { get; set; }
-        public object? Subtitles { get; set; }
+        public List<AddSubtitleDto>? Subtitles { get; set; }
         public string? Type { get; set; }
         public string? WatchLink { get; set; }
     }
 
-    public class GenreDto
+    public class AddGenreDto
     {
         public int? Id { get; set; }
         public string? Name { get; set; }
+    }
+
+    public class AddAudioDto
+    {
+        public string Language { get; set; }
+        public string Region { get; set; }
+    }
+
+    public class AddSubtitleDto
+    {
+        public bool ClosedCaptions { get; set; }
+        public AddLocaleDto Locale { get; set; }
+    }
+
+    public class AddLocaleDto
+    {
+        public string Language { get; set; }
+        public string Region { get; set; }
     }
 }
