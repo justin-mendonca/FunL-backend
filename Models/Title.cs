@@ -34,18 +34,11 @@ namespace FunL_backend.Models
         public string? Subtitles { get; set; }
         public string? Type { get; set; }
         public string? WatchLink { get; set; }
-
-        // Reference to Title
         public int TitleId { get; set; }
         public Title? Title { get; set; }
-
-        // Reference to StreamingPlatform
         public int StreamingPlatformId { get; set; }
         public StreamingPlatform? StreamingPlatform { get; set; }
-
-        // Country
         public string? Country { get; set; }
-
         public List<UserTitle>? UserTitles { get; set; }
     }
 

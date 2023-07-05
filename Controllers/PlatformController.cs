@@ -24,7 +24,7 @@ namespace FunL_backend.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<ServiceResponse<List<Title>>>> SavePlatformTitles(List<AddTitleDto> titleList)
+        public async Task<ActionResult<ServiceResponse<List<GetTitleDto>>>> SavePlatformTitles(List<AddTitleDto> titleList)
         {
             return Ok(await _platformService.SavePlatformTitles(titleList));
         } 

@@ -58,14 +58,17 @@ namespace FunL_backend.Services.PlatformService
             return serviceResponse;
         }
 
-        public async Task<ServiceResponse<List<Title>>> SavePlatformTitles(List<AddTitleDto> titleList)
+        public async Task<ServiceResponse<List<GetTitleDto>>> SavePlatformTitles(List<AddTitleDto> titleList)
         {
-            var serviceResponse = new ServiceResponse<List<Title>>();
+            var serviceResponse = new ServiceResponse<List<GetTitleDto>>();
 
             try
             {
                 var titles = new List<Title>();
-                var existingGenres = _dbContext.Genres.ToDictionary(g => g.Name, g => g);
+                var existingGenres = _dbContext.Genres
+                    .GroupBy(g => g.Name)
+                    .Select(grp => grp.First())
+                    .ToDictionary(g => g.Name, g => g);
 
                 foreach (var titleDto in titleList)
                 {
@@ -131,7 +134,8 @@ namespace FunL_backend.Services.PlatformService
 
                 await _dbContext.SaveChangesAsync();
 
-                serviceResponse.Data = titles;
+                var getTitleDtos = _mapper.Map<List<GetTitleDto>>(titles);
+                serviceResponse.Data = getTitleDtos;
                 serviceResponse.Message = "Titles saved successfully";
             }
             catch (Exception ex)
