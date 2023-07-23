@@ -1,13 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.Metrics;
-using System.Linq;
-using System.Threading.Tasks;
-using FunL_backend.Data;
-using FunL_backend.Dtos.Title;
 using FunL_backend.Helpers;
-using FunL_backend.Models;
-using Microsoft.EntityFrameworkCore;
 
 namespace FunL_backend.Services.PlatformService
 {

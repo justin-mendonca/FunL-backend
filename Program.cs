@@ -7,6 +7,7 @@ global using FunL_backend.Data;
 using System.Text.Json.Serialization;
 using System.Text.Json;
 using FunL_backend.Helpers;
+using FunL_backend.Services.UserService;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -65,6 +66,7 @@ var config = new MapperConfiguration(cfg =>
 builder.Services.AddSingleton(config.CreateMapper());
 
 builder.Services.AddScoped<IPlatformService, PlatformService>();
+builder.Services.AddScoped<IUserService, UserService>();
 
 var app = builder.Build();
 
