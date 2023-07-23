@@ -5,17 +5,51 @@ global using AutoMapper;
 global using Microsoft.EntityFrameworkCore;
 global using FunL_backend.Data;
 using System.Text.Json.Serialization;
-using System.Text.Json;
-using FunL_backend.Helpers;
 using FunL_backend.Services.UserService;
+using FunL_backend.Dtos.NewFolder;
+using System.Text;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+
 
 var builder = WebApplication.CreateBuilder(args);
+
+var jwtSettings = builder.Configuration.GetSection("Jwt");
+builder.Services.Configure<JwtSettings>(jwtSettings);
+
+var jwtKey = jwtSettings["Key"];
+
+if (string.IsNullOrEmpty(jwtKey))
+{
+    throw new ArgumentException("JWT Key is missing or empty in configuration");
+}
+
+var key = Encoding.ASCII.GetBytes(jwtKey);
 
 // Add services to the container.
 builder.Services.AddDbContext<DataContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
     options.EnableSensitiveDataLogging();
+});
+
+builder.Services.AddAuthentication(x =>
+{
+    x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(x =>
+{
+    x.RequireHttpsMetadata = false;  // In production, you might want to set this to true
+    x.SaveToken = true;
+    x.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(key),
+        ValidateIssuer = true,
+        ValidIssuer = jwtSettings["Issuer"],
+        ValidateAudience = false  // Usually set to true if you are specifying an audience
+    };
 });
 
 builder.Services.AddCors(options =>
@@ -62,6 +96,8 @@ var config = new MapperConfiguration(cfg =>
     cfg.CreateMap<StreamingServiceInfo, GetStreamingServiceInfoDto>()
         .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.PriceJson))
         .ForMember(dest => dest.Platform, opt => opt.MapFrom(src => src.StreamingPlatform.Name));
+
+    cfg.CreateMap<RegisterUserDto, User>();
 });
 builder.Services.AddSingleton(config.CreateMapper());
 
@@ -78,6 +114,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseAuthentication();
 
 app.UseAuthorization();
 
