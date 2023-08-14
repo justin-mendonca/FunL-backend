@@ -1,4 +1,4 @@
-﻿using FunL_backend.Dtos.NewFolder;
+﻿using FunL_backend.Dtos.User;
 using FunL_backend.Services.UserService;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,7 +18,27 @@ namespace FunL_backend.Controllers
         [HttpPost("register")]
         public async Task<ActionResult<ServiceResponse<string>>> RegisterUser(RegisterUserDto userData)
         {
-            return Ok(await _userService.RegisterUser(userData));
+            var serviceResponse = await _userService.RegisterUser(userData);
+
+            if (!serviceResponse.Success)
+            {
+                return BadRequest(serviceResponse.Message);
+            }
+
+            return Ok(serviceResponse);
+        }
+
+        [HttpPost("login")]
+        public async Task<ActionResult<ServiceResponse<string>>> LoginUser(LoginUserDto userData)
+        {
+            var serviceResponse = await _userService.LoginUser(userData);
+
+            if (!serviceResponse.Success)
+            {
+                return BadRequest(serviceResponse.Message);
+            }
+
+            return Ok(serviceResponse);
         }
     }
 }

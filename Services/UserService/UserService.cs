@@ -1,4 +1,4 @@
-﻿using FunL_backend.Dtos.NewFolder;
+﻿using FunL_backend.Dtos.User;
 using Microsoft.AspNetCore.Identity;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.IdentityModel.Tokens;
@@ -40,7 +40,7 @@ namespace FunL_backend.Services.UserService
                 if (existingUser != null)
                 {
                     serviceResponse.Success = false;
-                    serviceResponse.Data = "Unsuccessful registration. Please try again with a different email";
+                    serviceResponse.Data = "Unsuccessful registration. Please try again with a different email.";
                     return serviceResponse;
                 }
 
@@ -59,6 +59,39 @@ namespace FunL_backend.Services.UserService
             {
                 serviceResponse.Token = GenerateJwtToken(user);
                 serviceResponse.Data = "Successfully registered and JWT token generated!";
+            }
+            return serviceResponse;
+        }
+
+        public async Task<ServiceResponse<string>> LoginUser(LoginUserDto userData)
+        {
+            var serviceResponse = new ServiceResponse<string>();
+            var user = _mapper.Map<User>(userData);
+
+            try
+            {
+                var retrievedUser = await _dbContext.Users
+                    .FirstOrDefaultAsync(x => x.Email == userData.Email);
+
+                if (retrievedUser == null)
+                {
+                    serviceResponse.Success = false;
+                    serviceResponse.Data = "Unsuccessful login. Please try again with a different email.";
+                    return serviceResponse;
+                }
+                serviceResponse.Success = VerifyPassword(retrievedUser, userData.Password);
+            }
+
+            catch (Exception ex)
+            {
+                serviceResponse.Success = false;
+                serviceResponse.Message = "Failed to log in: " + ex.Message;
+            }
+
+            if (serviceResponse.Success)
+            {
+                serviceResponse.Token = GenerateJwtToken(user);
+                serviceResponse.Data = "Successfully logged in and JWT token generated!";
             }
             return serviceResponse;
         }

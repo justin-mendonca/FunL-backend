@@ -6,7 +6,7 @@ global using Microsoft.EntityFrameworkCore;
 global using FunL_backend.Data;
 using System.Text.Json.Serialization;
 using FunL_backend.Services.UserService;
-using FunL_backend.Dtos.NewFolder;
+using FunL_backend.Dtos.User;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -98,6 +98,7 @@ var config = new MapperConfiguration(cfg =>
         .ForMember(dest => dest.Platform, opt => opt.MapFrom(src => src.StreamingPlatform.Name));
 
     cfg.CreateMap<RegisterUserDto, User>();
+    cfg.CreateMap<LoginUserDto, User>();
 });
 builder.Services.AddSingleton(config.CreateMapper());
 
