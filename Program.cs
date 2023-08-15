@@ -1,11 +1,12 @@
 global using FunL_backend.Models;
 global using FunL_backend.Services.PlatformService;
+global using FunL_backend.Services.UserService;
+global using FunL_backend.Services.SubscriptionService;
 global using FunL_backend.Dtos.Title;
 global using AutoMapper;
 global using Microsoft.EntityFrameworkCore;
 global using FunL_backend.Data;
 using System.Text.Json.Serialization;
-using FunL_backend.Services.UserService;
 using FunL_backend.Dtos.User;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
@@ -101,9 +102,11 @@ var config = new MapperConfiguration(cfg =>
     cfg.CreateMap<LoginUserDto, User>();
 });
 builder.Services.AddSingleton(config.CreateMapper());
+builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddScoped<IPlatformService, PlatformService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<ISubscriptionService, SubscriptionService>();
 
 var app = builder.Build();
 
