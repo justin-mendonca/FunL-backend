@@ -101,5 +101,10 @@ namespace FunL_backend.Services.SubscriptionService
 
             return serviceResponse;
         }
+
+        public async Task<ServiceResponse<List<GetSubscriptionDto>>> GetSubscriptions()
+        {
+
+        }
     }
 }

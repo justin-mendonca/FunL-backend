@@ -5,5 +5,6 @@ namespace FunL_backend.Services.SubscriptionService
     public interface ISubscriptionService
     {
         Task<ServiceResponse<List<GetSubscriptionDto>>> SaveSubscriptions(AddSubsriptionDto Subscriptions);
+        Task<ServiceResponse<List<GetSubscriptionDto>>> GetSubscriptions();
     }
 }

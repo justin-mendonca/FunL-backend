@@ -19,7 +19,7 @@ namespace FunL_backend.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> SaveSubscriptions(AddSubsriptionDto Subscriptions)
+        public async Task<ActionResult<ServiceResponse<List<GetSubscriptionDto>>>> SaveSubscriptions(AddSubsriptionDto Subscriptions)
         {
             var serviceResponse = await _subscriptionService.SaveSubscriptions(Subscriptions);
 
@@ -29,6 +29,19 @@ namespace FunL_backend.Controllers
             }
 
             return Ok(serviceResponse);
+        }
+
+        [HttpGet]
+        public async Task<ActionResult<ServiceResponse<List<GetSubscriptionDto>>>> GetSubscriptions()
+        {
+            var serviceReponse = await _subscriptionService.GetSubscriptions();
+
+            if (!serviceReponse.Success) 
+            {
+                return BadRequest(serviceReponse);
+            }
+
+            return Ok(serviceReponse);
         }
     }
 }
