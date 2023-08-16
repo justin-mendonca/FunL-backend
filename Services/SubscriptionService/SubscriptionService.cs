@@ -93,6 +93,7 @@ namespace FunL_backend.Services.SubscriptionService
                 serviceResponse.Success = true;
                 serviceResponse.Message = "Subscriptions saved successfully";
             }
+
             catch (Exception ex)
             {
                 serviceResponse.Success = false;
@@ -104,7 +105,47 @@ namespace FunL_backend.Services.SubscriptionService
 
         public async Task<ServiceResponse<List<GetSubscriptionDto>>> GetSubscriptions()
         {
+            var serviceResponse = new ServiceResponse<List<GetSubscriptionDto>>();
 
+            try
+            {
+                var userEmailClaim = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.Name);
+
+                if (userEmailClaim == null)
+                {
+                    serviceResponse.Success = false;
+                    serviceResponse.Message = "User email claim not found in the HttpContext.";
+                    return serviceResponse;
+                }
+
+                var userEmail = userEmailClaim.Value;
+
+                var user = await _dbContext.Users.FirstOrDefaultAsync(x => x.Email == userEmail);
+
+                if (user == null)
+                {
+                    serviceResponse.Success = false;
+                    serviceResponse.Message = "User not found for the provided email.";
+                    return serviceResponse;
+                }
+
+                var existingSubscriptions = await _dbContext.UserStreamingPlatforms
+                    .Include(x => x.StreamingPlatform)
+                    .Where(x => x.UserId == user.Id)
+                    .ToListAsync();
+
+                serviceResponse.Success = true;
+                serviceResponse.Message = "Subscriptions retrieved successfully";
+                serviceResponse.Data = _mapper.Map<List<GetSubscriptionDto>>(existingSubscriptions);
+            }
+
+            catch (Exception ex)
+            {
+                serviceResponse.Success = false;
+                serviceResponse.Message = $"An error occurred while retrieving subscriptions: {ex.Message}";
+            }
+
+            return serviceResponse;
         }
     }
 }

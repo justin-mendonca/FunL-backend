@@ -11,7 +11,7 @@ using FunL_backend.Dtos.User;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-
+using FunL_backend.Dtos.Subscription;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -100,7 +100,12 @@ var config = new MapperConfiguration(cfg =>
 
     cfg.CreateMap<RegisterUserDto, User>();
     cfg.CreateMap<LoginUserDto, User>();
+
+    cfg.CreateMap<UserStreamingPlatform, GetSubscriptionDto>()
+        .ForMember(dest => dest.StreamingPlatformId, opt => opt.MapFrom(src => src.StreamingPlatformId))
+        .ForMember(dest => dest.StreamingPlatformName, opt => opt.MapFrom(src => src.StreamingPlatform.Name));
 });
+
 builder.Services.AddSingleton(config.CreateMapper());
 builder.Services.AddHttpContextAccessor();
 
