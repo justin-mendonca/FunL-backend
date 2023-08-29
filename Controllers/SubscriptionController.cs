@@ -1,5 +1,4 @@
 ﻿using FunL_backend.Dtos.Subscription;
-using FunL_backend.Services.SubscriptionService;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
